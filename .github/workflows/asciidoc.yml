@@ -1,0 +1,63 @@
+name: Asciidoc
+
+on:
+  push:
+    branches: [ "main" ]
+    # Publish semver tags as releases.
+    tags: [ 'v*.*.*' ]
+    paths:
+      - '**/asciidoc.yml'
+      - '**.adoc'
+      - 'data/**'
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
+  r_container: ghcr.io/donnels/jupyter-r-aarch64:main
+
+jobs:
+  change-and-push:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+# load containers
+      - name: Load containers
+        run: |
+          docker pull $r_container
+
+# run R
+      - name: Perform R analysis
+        run: |
+          cd data 
+          docker run -t -v"$PWD":/data $r_container ./geocoder.R targets.csv
+
+# make plantumls
+      - name: Create the plantumls
+        run: |
+          echo test
+          echo test >> testfile
+
+# make asciidoc
+      - name: Make any asciidoc documents
+        run: |
+          echo test
+
+# commit changes back to the repo
+      - name: Commit and push changes
+        uses: devops-infra/action-commit-push@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          commit_message: Automated commit after actions
