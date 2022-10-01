@@ -1,5 +1,4 @@
 #!/usr/bin/env Rscript
-#(C)2022 kyndryl - Author Sean Donnellan
 # get filename to work on
 # test if there is at least one argument: if not, return an error
 if (interactive()) {
